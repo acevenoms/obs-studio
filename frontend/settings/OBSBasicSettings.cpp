@@ -550,8 +550,10 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->hdrNominalPeakLevel,  SCROLL_CHANGED, ADV_CHANGED);
 	HookWidget(ui->disableOSXVSync,      CHECK_CHANGED,  ADV_CHANGED);
 	HookWidget(ui->resetOSXVSync,        CHECK_CHANGED,  ADV_CHANGED);
-	if (obs_audio_monitoring_available())
+	if (obs_audio_monitoring_available()) {
 		HookWidget(ui->monitoringDevice,     COMBO_CHANGED,  ADV_CHANGED);
+		HookWidget(ui->autoMonitorMedia,     CHECK_CHANGED,  ADV_CHANGED);
+	}
 #ifdef _WIN32
 	HookWidget(ui->disableAudioDucking,  CHECK_CHANGED,  ADV_CHANGED);
 #endif
