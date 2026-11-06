@@ -812,6 +812,12 @@ void OBSBasicSourceSelect::createNew()
 	undo_s.add_action(QTStr("Undo.Add").arg(QString::fromStdString(newName)), undo, redo,
 			  std::string(obs_source_get_uuid(newSource)), std::string(obs_data_get_json(wrapper)));
 
+	if (obs_audio_monitoring_available() && config_get_bool(main->Config(), "Audio", "AutoMonitorMedia")) {
+		if (sourceType.compare("media_source")) {
+			obs_source_set_monitoring_enabled(newSource, true);
+		}
+	}
+
 	main->CreatePropertiesWindow(newSource);
 
 	close();

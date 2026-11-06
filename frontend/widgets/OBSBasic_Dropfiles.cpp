@@ -213,6 +213,12 @@ void OBSBasic::AddDropSource(const char *data, DropType image)
 		undo_s.add_action(QTStr("Undo.Add").arg(sourceName.c_str()), undo, redo, "",
 				  std::string(obs_data_get_json(wrapper)));
 		obs_scene_add(scene, source);
+
+		if (obs_audio_monitoring_available() && config_get_bool(main->Config(), "Audio", "AutoMonitorMedia")) {
+			if (image == DropType_Media) {
+				obs_source_set_monitoring_enabled(source, true);
+			}
+		}
 	}
 }
 
