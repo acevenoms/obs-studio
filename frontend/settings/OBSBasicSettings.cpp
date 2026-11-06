@@ -608,12 +608,14 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	}
 #endif
 
-	// Remove the Advanced Audio section if monitoring is not supported, as the monitoring device selection is the only item in the group box.
+	// Remove the any settings related to monitoring if it is not enabled app-wide.
 	if (!obs_audio_monitoring_available()) {
 		delete ui->monitoringDeviceLabel;
 		ui->monitoringDeviceLabel = nullptr;
 		delete ui->monitoringDevice;
 		ui->monitoringDevice = nullptr;
+		delete ui->autoMonitorMedia;
+		ui->autoMonitorMedia = nullptr;
 	}
 
 #ifdef _WIN32
@@ -2594,9 +2596,11 @@ void OBSBasicSettings::LoadAdvancedSettings()
 
 	QString monDevName;
 	QString monDevId;
+	bool autoMonitorMedia;
 	if (obs_audio_monitoring_available()) {
 		monDevName = config_get_string(main->Config(), "Audio", "MonitoringDeviceName");
 		monDevId = config_get_string(main->Config(), "Audio", "MonitoringDeviceId");
+		autoMonitorMedia = config_get_bool(main->Config(), "Audio", "AutoMonitorMedia");
 	}
 	bool enableDelay = config_get_bool(main->Config(), "Output", "DelayEnable");
 	int delaySec = config_get_int(main->Config(), "Output", "DelaySec");
@@ -2622,8 +2626,11 @@ void OBSBasicSettings::LoadAdvancedSettings()
 
 	LoadRendererList();
 
-	if (obs_audio_monitoring_available() && !SetComboByValue(ui->monitoringDevice, monDevId)) {
-		SetInvalidValue(ui->monitoringDevice, monDevName, monDevId);
+	if (obs_audio_monitoring_available()) {
+		if (!SetComboByValue(ui->monitoringDevice, monDevId)) {
+			SetInvalidValue(ui->monitoringDevice, monDevName, monDevId);
+		}
+		ui->autoMonitorMedia->setChecked(autoMonitorMedia);
 	}
 
 	ui->confirmOnExit->setChecked(confirmOnExit);
@@ -3312,6 +3319,7 @@ void OBSBasicSettings::SaveAdvancedSettings()
 	if (obs_audio_monitoring_available()) {
 		SaveCombo(ui->monitoringDevice, "Audio", "MonitoringDeviceName");
 		SaveComboData(ui->monitoringDevice, "Audio", "MonitoringDeviceId");
+		SaveCheckBox(ui->autoMonitorMedia, "Audio", "AutoMonitorMedia");
 	}
 
 #ifdef _WIN32
